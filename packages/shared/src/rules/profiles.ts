@@ -1,8 +1,5 @@
 import { z } from 'zod';
-import {
-  START_TRACK_INDICES,
-  STAR_TRACK_INDICES,
-} from '../board/topology';
+import { START_TRACK_INDICES, STAR_TRACK_INDICES } from '../board/topology';
 import type { RuleSet, SafeSquarePreset } from './types';
 
 /**

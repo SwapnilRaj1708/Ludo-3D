@@ -1,10 +1,5 @@
 import { isSeatIndex, type SeatIndex } from '../constants/seats';
-import {
-  FINISH_PROGRESS,
-  YARD_PROGRESS,
-  isOnTrack,
-  trackIndexFor,
-} from '../board/topology';
+import { FINISH_PROGRESS, YARD_PROGRESS, isOnTrack, trackIndexFor } from '../board/topology';
 import { isDiceValue, type BonusReason, type DiceValue } from '../rules/types';
 import { evaluatePieceMove, getLegalMoves } from './moves';
 import type {

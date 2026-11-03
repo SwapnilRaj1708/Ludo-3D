@@ -111,7 +111,10 @@ describe('three consecutive sixes', () => {
     let state = scenario({ pieces: { 'yellow-0': 6, 'green-0': 8 } }); // green-0 at global 21 (star)
     state = move(roll(state, 6).state, 'yellow-0').state; // 6 → 12
     // green-1 at relative 2 = global 15; yellow-0 at 12 rolls 3 → capture.
-    state = { ...state, pieces: state.pieces.map((p) => (p.id === 'green-1' ? { ...p, progress: 2 } : p)) };
+    state = {
+      ...state,
+      pieces: state.pieces.map((p) => (p.id === 'green-1' ? { ...p, progress: 2 } : p)),
+    };
     state = move(roll(state, 3).state, 'yellow-0').state;
     expect(state.turn.consecutiveSixes).toBe(0);
     state = move(roll(state, 6).state, 'yellow-0').state;

@@ -34,8 +34,10 @@ export const THEMES: Readonly<Record<string, AnimalTheme>> = Object.freeze({
 export const DEFAULT_THEME_ID = ANIMAL_KINGDOM_THEME.id;
 
 export function getTheme(id: string | undefined): AnimalTheme {
-  return (id && Object.prototype.hasOwnProperty.call(THEMES, id) ? THEMES[id] : undefined) ??
-    ANIMAL_KINGDOM_THEME;
+  return (
+    (id && Object.prototype.hasOwnProperty.call(THEMES, id) ? THEMES[id] : undefined) ??
+    ANIMAL_KINGDOM_THEME
+  );
 }
 
 export function speciesForSeat(theme: AnimalTheme, seat: SeatIndex): Species {

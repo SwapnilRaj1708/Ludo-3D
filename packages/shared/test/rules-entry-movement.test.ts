@@ -1,11 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import {
-  applyAction,
-  createGame,
-  getLegalMoves,
-  movesAreEquivalent,
-  type GameState,
-} from '../src';
+import { applyAction, createGame, getLegalMoves, movesAreEquivalent, type GameState } from '../src';
 import { eventTypes, move, progressOf, roll, scenario } from './helpers';
 
 describe('starting-yard entry', () => {
@@ -76,10 +70,13 @@ describe('movement', () => {
 describe('action validation', () => {
   const base = scenario({ pieces: { 'yellow-0': 10, 'green-0': 5 } });
 
-  it.each([0, 7, -1, 3.5, Number.NaN, Number.POSITIVE_INFINITY])('rejects dice value %s', (value) => {
-    const result = applyAction(base, { type: 'roll', seat: 0, value });
-    expect(result).toMatchObject({ ok: false, error: 'invalid-dice' });
-  });
+  it.each([0, 7, -1, 3.5, Number.NaN, Number.POSITIVE_INFINITY])(
+    'rejects dice value %s',
+    (value) => {
+      const result = applyAction(base, { type: 'roll', seat: 0, value });
+      expect(result).toMatchObject({ ok: false, error: 'invalid-dice' });
+    },
+  );
 
   it('rejects non-numeric dice values', () => {
     const result = applyAction(base, { type: 'roll', seat: 0, value: '3' as unknown as number });

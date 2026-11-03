@@ -63,7 +63,8 @@ describe('full-match simulations', () => {
           }
           // Events alone are enough to reproduce the final board.
           const replayed = replayPositions(initial, result.events);
-          for (const piece of result.state.pieces) expect(replayed.get(piece.id)).toBe(piece.progress);
+          for (const piece of result.state.pieces)
+            expect(replayed.get(piece.id)).toBe(piece.progress);
           expect(result.events.at(-1)?.type).toBe('game-over');
         }
       });
@@ -124,12 +125,23 @@ describe('property: arbitrary command streams', () => {
       type: fc.constant('move' as const),
       seat: fc.constantFrom(0, 1, 2, 3),
       pieceId: fc.constantFrom(
-        'yellow-0', 'yellow-1', 'green-2', 'red-3', 'blue-1', 'blue-9', '', 'x',
+        'yellow-0',
+        'yellow-1',
+        'green-2',
+        'red-3',
+        'blue-1',
+        'blue-9',
+        '',
+        'x',
       ),
     }),
     fc.record({ type: fc.constant('leave' as const), seat: fc.constantFrom(0, 1, 2, 3) }),
     // A "smart" action: whatever the current player can legally do.
-    fc.record({ type: fc.constant('legal' as const), pick: fc.nat(), value: fc.integer({ min: 1, max: 6 }) }),
+    fc.record({
+      type: fc.constant('legal' as const),
+      pick: fc.nat(),
+      value: fc.integer({ min: 1, max: 6 }),
+    }),
   );
 
   it('never breaks invariants; rejected commands never change state', () => {
@@ -145,7 +157,11 @@ describe('property: arbitrary command streams', () => {
               const moves = getCurrentLegalMoves(state);
               action =
                 state.turn.phase === 'awaiting-move' && moves.length > 0
-                  ? { type: 'move', seat: state.turn.seat, pieceId: moves[command.pick % moves.length]!.pieceId }
+                  ? {
+                      type: 'move',
+                      seat: state.turn.seat,
+                      pieceId: moves[command.pick % moves.length]!.pieceId,
+                    }
                   : { type: 'roll', seat: state.turn.seat, value: command.value };
             } else {
               action = command as GameAction;

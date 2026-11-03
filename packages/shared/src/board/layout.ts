@@ -158,10 +158,26 @@ export const FINISH_SLOTS: Readonly<Record<SeatIndex, readonly BoardPoint[]>> = 
 
 /** Triangle vertices of each seat's finishing area (board coordinates). */
 export const FINISH_TRIANGLES: Readonly<Record<SeatIndex, readonly BoardPoint[]>> = {
-  0: [{ x: 6, y: 6 }, { x: 6, y: 9 }, { x: 7.5, y: 7.5 }].map((p) => rotatePointCW(p, 0)),
-  1: [{ x: 6, y: 6 }, { x: 6, y: 9 }, { x: 7.5, y: 7.5 }].map((p) => rotatePointCW(p, 1)),
-  2: [{ x: 6, y: 6 }, { x: 6, y: 9 }, { x: 7.5, y: 7.5 }].map((p) => rotatePointCW(p, 2)),
-  3: [{ x: 6, y: 6 }, { x: 6, y: 9 }, { x: 7.5, y: 7.5 }].map((p) => rotatePointCW(p, 3)),
+  0: [
+    { x: 6, y: 6 },
+    { x: 6, y: 9 },
+    { x: 7.5, y: 7.5 },
+  ].map((p) => rotatePointCW(p, 0)),
+  1: [
+    { x: 6, y: 6 },
+    { x: 6, y: 9 },
+    { x: 7.5, y: 7.5 },
+  ].map((p) => rotatePointCW(p, 1)),
+  2: [
+    { x: 6, y: 6 },
+    { x: 6, y: 9 },
+    { x: 7.5, y: 7.5 },
+  ].map((p) => rotatePointCW(p, 2)),
+  3: [
+    { x: 6, y: 6 },
+    { x: 6, y: 9 },
+    { x: 7.5, y: 7.5 },
+  ].map((p) => rotatePointCW(p, 3)),
 };
 
 /** Unit direction of travel on each track square (board coordinates). */

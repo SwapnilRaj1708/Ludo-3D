@@ -21,8 +21,10 @@ import {
 } from '../src';
 
 const key = (c: GridCell) => `${c.col},${c.row}`;
-const inRect = (c: GridCell, r: { minCol: number; minRow: number; maxCol: number; maxRow: number }) =>
-  c.col >= r.minCol && c.col <= r.maxCol && c.row >= r.minRow && c.row <= r.maxRow;
+const inRect = (
+  c: GridCell,
+  r: { minCol: number; minRow: number; maxCol: number; maxRow: number },
+) => c.col >= r.minCol && c.col <= r.maxCol && c.row >= r.minRow && c.row <= r.maxRow;
 
 describe('15×15 board layout', () => {
   it('has exactly 52 distinct shared track squares inside the grid', () => {
@@ -89,8 +91,10 @@ describe('15×15 board layout', () => {
       const last = lane[4]!;
       // The final lane square touches the centre 3×3 area.
       const touchesCentre =
-        (last.col === CENTER_RECT.minCol - 1 || last.col === CENTER_RECT.maxCol + 1 ||
-          last.row === CENTER_RECT.minRow - 1 || last.row === CENTER_RECT.maxRow + 1) &&
+        (last.col === CENTER_RECT.minCol - 1 ||
+          last.col === CENTER_RECT.maxCol + 1 ||
+          last.row === CENTER_RECT.minRow - 1 ||
+          last.row === CENTER_RECT.maxRow + 1) &&
         (last.col === 7 || last.row === 7);
       expect(touchesCentre).toBe(true);
       for (const c of lane) expect(TRACK_CELLS.map(key)).not.toContain(key(c));
@@ -128,7 +132,8 @@ describe('per-seat routes', () => {
     // The one square never visited is the one directly behind the start.
     const behind = TRACK_CELLS[(SEAT_START_INDEX[seat] + TRACK_LENGTH - 1) % TRACK_LENGTH]!;
     expect(visited).not.toContain(key(behind));
-    for (let p = 51; p <= 55; p++) expect(locate(seat, p)).toEqual({ zone: 'lane', laneIndex: p - 51 });
+    for (let p = 51; p <= 55; p++)
+      expect(locate(seat, p)).toEqual({ zone: 'lane', laneIndex: p - 51 });
     expect(locate(seat, FINISH_PROGRESS)).toEqual({ zone: 'finished' });
     expect(locate(seat, -1)).toEqual({ zone: 'yard' });
   });

@@ -40,7 +40,12 @@ export const displayNameSchema = z
   .string()
   .max(200)
   .transform(sanitizeDisplayName)
-  .pipe(z.string().min(1).max(MAX_DISPLAY_NAME_LENGTH * 2));
+  .pipe(
+    z
+      .string()
+      .min(1)
+      .max(MAX_DISPLAY_NAME_LENGTH * 2),
+  );
 
 /** Client-generated idempotency key attached to every game command. */
 export const actionIdSchema = z.string().regex(/^[A-Za-z0-9_-]{8,64}$/);
@@ -91,12 +96,7 @@ export interface GameEventsMessage {
 }
 
 export type ActionRejection =
-  | 'duplicate'
-  | 'stale'
-  | 'not-in-game'
-  | 'rate-limited'
-  | 'invalid-payload'
-  | 'engine-rejected';
+  'duplicate' | 'stale' | 'not-in-game' | 'rate-limited' | 'invalid-payload' | 'engine-rejected';
 
 export interface ActionResultMessage {
   readonly actionId: string;
@@ -137,3 +137,4 @@ export const CLOSE_CODES = {
   kickedInactive: 4102,
   roomClosed: 4103,
 } as const;
+export * from './sync';

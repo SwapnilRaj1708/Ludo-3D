@@ -38,3 +38,4 @@ emulator-data/
 .vscode/*
 !.vscode/extensions.json
 .idea/
+.next-e2e/

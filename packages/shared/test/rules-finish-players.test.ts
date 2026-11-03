@@ -31,7 +31,8 @@ describe('home lane and finishing', () => {
   it('does not allow finished pieces to move again', () => {
     const state = scenario({ pieces: { 'yellow-0': 56 } });
     const piece = state.pieces.find((p) => p.id === 'yellow-0')!;
-    for (const d of [1, 2, 3, 4, 5, 6] as const) expect(evaluatePieceMove(state, piece, d)).toBeNull();
+    for (const d of [1, 2, 3, 4, 5, 6] as const)
+      expect(evaluatePieceMove(state, piece, d)).toBeNull();
   });
 
   it('home lane squares cannot be reached or blocked by opponents', () => {
@@ -66,9 +67,18 @@ describe('home lane and finishing', () => {
   it('continues until one player remains in 4-player all-but-one games', () => {
     let state = scenario({
       pieces: {
-        'yellow-0': 56, 'yellow-1': 56, 'yellow-2': 56, 'yellow-3': 55,
-        'green-0': 56, 'green-1': 56, 'green-2': 56, 'green-3': 55,
-        'red-0': 56, 'red-1': 56, 'red-2': 56, 'red-3': 55,
+        'yellow-0': 56,
+        'yellow-1': 56,
+        'yellow-2': 56,
+        'yellow-3': 55,
+        'green-0': 56,
+        'green-1': 56,
+        'green-2': 56,
+        'green-3': 55,
+        'red-0': 56,
+        'red-1': 56,
+        'red-2': 56,
+        'red-3': 55,
         'blue-0': 20,
       },
     });
@@ -86,7 +96,14 @@ describe('home lane and finishing', () => {
   it('skips finished players when passing the turn', () => {
     let state = scenario({
       seats: [0, 1, 2],
-      pieces: { 'yellow-0': 56, 'yellow-1': 56, 'yellow-2': 56, 'yellow-3': 55, 'green-0': 10, 'red-0': 10 },
+      pieces: {
+        'yellow-0': 56,
+        'yellow-1': 56,
+        'yellow-2': 56,
+        'yellow-3': 55,
+        'green-0': 10,
+        'red-0': 10,
+      },
     });
     state = move(roll(state, 1).state, 'yellow-3').state; // yellow done → green
     state = roll(state, 2).state;
@@ -101,9 +118,14 @@ describe('home lane and finishing', () => {
       rules: QUICK_FINISH,
       seats: [0, 1, 2],
       pieces: {
-        'yellow-0': 56, 'yellow-1': 56, 'yellow-2': 56, 'yellow-3': 55,
-        'green-0': 56, 'green-1': 20,
-        'red-0': 56, 'red-1': 40,
+        'yellow-0': 56,
+        'yellow-1': 56,
+        'yellow-2': 56,
+        'yellow-3': 55,
+        'green-0': 56,
+        'green-1': 20,
+        'red-0': 56,
+        'red-1': 40,
       },
     });
     const moved = move(roll(state, 1).state, 'yellow-3');

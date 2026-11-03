@@ -149,14 +149,22 @@ describe('protocol validation', () => {
   });
 
   it('validates commands', () => {
-    expect(rollCommandSchema.safeParse({ actionId: 'abcdefgh12', expectedVersion: 3 }).success).toBe(true);
-    expect(rollCommandSchema.safeParse({ actionId: 'short', expectedVersion: 3 }).success).toBe(false);
-    expect(rollCommandSchema.safeParse({ actionId: 'abcdefgh12', expectedVersion: -1 }).success).toBe(false);
     expect(
-      moveCommandSchema.safeParse({ actionId: 'abcdefgh12', expectedVersion: 0, pieceId: 'red-2' }).success,
+      rollCommandSchema.safeParse({ actionId: 'abcdefgh12', expectedVersion: 3 }).success,
+    ).toBe(true);
+    expect(rollCommandSchema.safeParse({ actionId: 'short', expectedVersion: 3 }).success).toBe(
+      false,
+    );
+    expect(
+      rollCommandSchema.safeParse({ actionId: 'abcdefgh12', expectedVersion: -1 }).success,
+    ).toBe(false);
+    expect(
+      moveCommandSchema.safeParse({ actionId: 'abcdefgh12', expectedVersion: 0, pieceId: 'red-2' })
+        .success,
     ).toBe(true);
     expect(
-      moveCommandSchema.safeParse({ actionId: 'abcdefgh12', expectedVersion: 0, pieceId: 'red-4' }).success,
+      moveCommandSchema.safeParse({ actionId: 'abcdefgh12', expectedVersion: 0, pieceId: 'red-4' })
+        .success,
     ).toBe(false);
   });
 
@@ -165,5 +173,32 @@ describe('protocol validation', () => {
     expect(parsed).toEqual({ displayName: 'Meera', mode: 'quick', playerCount: 4 });
     expect(joinOptionsSchema.safeParse({ displayName: '   ' }).success).toBe(false);
     expect(joinOptionsSchema.safeParse({ displayName: 'A', playerCount: 5 }).success).toBe(false);
+  });
+});
+
+describe('state sync codec', () => {
+  it('round-trips engine state through the synchronised wire shape', async () => {
+    const { toSynced, fromSynced } = await import('../src/protocol');
+    const { CLASSIC_INDIAN_DIGITAL, createSeededRandom, diceFromRandom, simulateMatch } =
+      await import('../src');
+    const random = createSeededRandom(99);
+    let checked = 0;
+    simulateMatch(createGame({ seats: [0, 1, 3] }), {
+      dice: diceFromRandom(random),
+      random,
+      onStep: ({ state }) => {
+        if (checked++ % 7 !== 0) return;
+        expect(fromSynced(toSynced(state, 123), CLASSIC_INDIAN_DIGITAL)).toEqual(state);
+      },
+    });
+    expect(checked).toBeGreaterThan(50);
+  });
+
+  it('rejects inconsistent synced data instead of guessing', async () => {
+    const { toSynced, fromSynced } = await import('../src/protocol');
+    const { CLASSIC_INDIAN_DIGITAL } = await import('../src');
+    const synced = toSynced(createGame({ seats: [0, 2] }));
+    synced.pieces[0]!.progress = 56; // finished piece without a matching counter
+    expect(fromSynced(synced, CLASSIC_INDIAN_DIGITAL)).toBeNull();
   });
 });

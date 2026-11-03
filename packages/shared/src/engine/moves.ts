@@ -17,9 +17,7 @@ export type TrackOccupancy = readonly (readonly PieceState[])[];
 
 export function buildTrackOccupancy(state: GameState): TrackOccupancy {
   const occupancy: PieceState[][] = Array.from({ length: TRACK_LENGTH }, () => []);
-  const departed = new Set(
-    state.players.filter((p) => p.status === 'left').map((p) => p.seat),
-  );
+  const departed = new Set(state.players.filter((p) => p.status === 'left').map((p) => p.seat));
   for (const piece of state.pieces) {
     if (departed.has(piece.seat) || !isOnTrack(piece.progress)) continue;
     occupancy[trackIndexFor(piece.seat, piece.progress)]!.push(piece);

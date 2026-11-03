@@ -46,7 +46,11 @@ export function threatAt(state: GameState, trackIndex: number, seat: SeatIndex):
 }
 
 /** Heuristic value of a move for the moving seat. Higher is better. */
-export function scoreMove(state: GameState, move: Move, occupancy = buildTrackOccupancy(state)): number {
+export function scoreMove(
+  state: GameState,
+  move: Move,
+  occupancy = buildTrackOccupancy(state),
+): number {
   const { seat } = move;
   let score = 0;
 
@@ -61,8 +65,9 @@ export function scoreMove(state: GameState, move: Move, occupancy = buildTrackOc
   }
   if (move.from < FIRST_LANE_PROGRESS && move.to >= FIRST_LANE_PROGRESS) score += 18;
 
-  const fromThreat =
-    isOnTrack(move.from) ? threatAt(state, trackIndexFor(seat, move.from), seat) : 0;
+  const fromThreat = isOnTrack(move.from)
+    ? threatAt(state, trackIndexFor(seat, move.from), seat)
+    : 0;
   let toThreat = 0;
   if (isOnTrack(move.to)) {
     const toIndex = trackIndexFor(seat, move.to);
