@@ -1,0 +1,20 @@
+{
+  "name": "@ludo3d/shared",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Framework-independent Ludo rules engine, board topology, protocol and theme config shared by client and server",
+  "type": "module",
+  "sideEffects": false,
+  "exports": {
+    ".": "./src/index.ts",
+    "./protocol": "./src/protocol/index.ts"
+  },
+  "scripts": {
+    "typecheck": "tsc -p tsconfig.json",
+    "test": "vitest run",
+    "lint": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "zod": "4.6.7"
+  }
+}
