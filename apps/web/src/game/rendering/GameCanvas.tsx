@@ -2,7 +2,7 @@
 
 import { PerformanceMonitor } from '@react-three/drei';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { useEffect, useState } from 'react';
+import { lazy, Suspense, useEffect, useState } from 'react';
 import * as THREE from 'three';
 import type { PieceId, Species } from '@ludo3d/shared';
 import type { PresentationController } from '../animations/PresentationController';
@@ -16,6 +16,9 @@ import type { QualityProfile } from './quality';
 import { publicConfig } from '@/services/config';
 import { PerfProbe } from './PerfProbe';
 import { SceneEnvironment } from './SceneEnvironment';
+
+/** High profile only; split into its own chunk so Low/Medium never load it. */
+const PostEffects = lazy(() => import('./PostEffects'));
 
 export interface GameCanvasProps {
   controller: PresentationController;
@@ -91,6 +94,11 @@ export default function GameCanvas(props: GameCanvasProps) {
       ) : null}
       <Dice3D controller={controller} />
       <Particles controller={controller} />
+      {quality.postProcessing ? (
+        <Suspense fallback={null}>
+          <PostEffects />
+        </Suspense>
+      ) : null}
     </Canvas>
   );
 }

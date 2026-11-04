@@ -14,7 +14,7 @@ export interface QualityProfile {
   boardTextureSize: number;
   woodTextureSize: number;
   anisotropy: number;
-  /** Screen-space ambient occlusion + subtle bloom/vignette. */
+  /** Post-processing chain: highlight bloom, vignette, SMAA (see PostEffects). */
   postProcessing: boolean;
   /** Environment map resolution for reflections. */
   envMapSize: number;
