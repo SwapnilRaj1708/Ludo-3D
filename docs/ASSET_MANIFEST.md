@@ -5,16 +5,23 @@ This document mirrors it for producers and reviewers.
 
 ## Status summary
 
-| Asset   | Path                                  | Status                  | Notes                                                                     |
-| ------- | ------------------------------------- | ----------------------- | ------------------------------------------------------------------------- |
-| Lion    | `public/assets/animals/lion.glb`      | **Proxy**               | Code-built development proxy (see below). Final realistic model required. |
-| Peacock | `public/assets/animals/peacock.glb`   | **Proxy**               | Code-built development proxy. Final realistic model required.             |
-| Horse   | `public/assets/animals/horse.glb`     | **Proxy**               | Code-built development proxy. Final realistic model required.             |
-| Fox     | `public/assets/animals/fox.glb`       | **Proxy**               | Code-built development proxy. Final realistic model required.             |
-| Board   | `public/assets/environment/board.glb` | Not supplied (optional) | The playable board is procedural (DECISIONS D-07).                        |
-| Dice    | `public/assets/environment/dice.glb`  | Not supplied (optional) | Procedural rounded resin die with recessed pips.                          |
-| Audio   | —                                     | Procedural              | All sounds synthesised at runtime (D-12).                                 |
-| Fonts   | npm `@fontsource-variable/*`          | Final                   | Inter, Cinzel, Noto Sans Devanagari, Noto Sans SC — SIL OFL 1.1.          |
+| Asset   | Path                                  | Status                   | Notes                                                                   |
+| ------- | ------------------------------------- | ------------------------ | ----------------------------------------------------------------------- |
+| Lion    | `public/assets/animals/lion.glb`      | **Proxy** (GLB, 145 KiB) | Exported development proxy (see below). Final realistic model required. |
+| Peacock | `public/assets/animals/peacock.glb`   | **Proxy** (GLB, 158 KiB) | Exported development proxy. Final realistic model required.             |
+| Horse   | `public/assets/animals/horse.glb`     | **Proxy** (GLB, 143 KiB) | Exported development proxy. Final realistic model required.             |
+| Fox     | `public/assets/animals/fox.glb`       | **Proxy** (GLB, 124 KiB) | Exported development proxy. Final realistic model required.             |
+| Board   | `public/assets/environment/board.glb` | Not supplied (optional)  | The playable board is procedural (DECISIONS D-07).                      |
+| Dice    | `public/assets/environment/dice.glb`  | Not supplied (optional)  | Procedural rounded resin die with recessed pips.                        |
+| Audio   | —                                     | Procedural               | All sounds synthesised at runtime (D-12).                               |
+| Fonts   | npm `@fontsource-variable/*`          | Final                    | Inter, Cinzel, Noto Sans Devanagari, Noto Sans SC — SIL OFL 1.1.        |
+
+The four GLBs are generated from the code-built proxies by
+`pnpm --filter @ludo3d/web assets:proxies` (three.js `GLTFExporter`, then
+glTF-Transform dedup/weld/prune and Meshopt compression; see DECISIONS D-15).
+They contain the skeleton, skinned meshes, PBR materials (sheen, iridescence,
+clearcoat via glTF extensions) and all 14 clips. `test/glb-assets.test.ts`
+loads each one the way the game does and checks every clip and track binding.
 
 **The proxies are not realistic characters.** They are stylised primitive-based
 figures with real skeletons and animation clips, built so the complete
@@ -32,7 +39,7 @@ that the build uses temporary models.
 | Rotation correction | 0,0,0 (model faces +Z)                                             | 0,0,0                                  | 0,0,0                          | 0,0,0                             |
 | Position correction | 0,0,0 (feet at y=0)                                                | 0,0,0                                  | 0,0,0                          | 0,0,0                             |
 | Materials           | PBR + sheen fur stand-in, clearcoat eyes/nose                      | Iridescent plumage, double-sided train | PBR coat + sheen, gloss hooves | PBR fur + sheen, red-fox markings |
-| Loading status      | GLB missing → runtime proxy                                        | same                                   | same                           | same                              |
+| Loading status      | GLB present (exported proxy); runtime builder is the fallback      | same                                   | same                           | same                              |
 
 Scale normalises **body length** (nose to rump; for the peacock beak to train tip)
 to 0.84 board squares (`TARGET_FOOTPRINT`). Tails curl/droop to stay on the square.
@@ -103,8 +110,12 @@ and runs back to its yard.
 
 ## Replacing a proxy
 
-1. Drop the file at the listed path.
-2. Update the entry in `manifest.ts`: `status: 'final'`, `source`, `licence`,
-   `scale`/`rotation`/`position` corrections, clip-name map.
+1. Replace the exported proxy at the listed path with the final file.
+2. Update the entry in `manifest.ts` **in the same change**: `status: 'final'`,
+   `source`, `licence`, `scale`/`rotation`/`position` corrections, clip-name
+   map. With the status set to `final`, `assets:proxies` skips that species and
+   can no longer overwrite the delivered file.
 3. Open `/dev/animals?clip=Walk` (dev build) to review every clip at once.
-4. Run the browser test suite.
+4. Run `pnpm test` (the GLB test checks clips and bindings against the manifest,
+   with a 6 MB budget for final files) and the browser suite.
+5. The "Proxy models" badge disappears once no species is a proxy.

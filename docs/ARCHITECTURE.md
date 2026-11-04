@@ -69,7 +69,7 @@ is the basis for idempotency and stale-command rejection online.
 | Route                                   | Purpose                                           |
 | --------------------------------------- | ------------------------------------------------- |
 | `/`                                     | Main menu                                         |
-| `/play/local?mode=bots                  | local`                                            | Setup + local match (pass-and-play / bots) |
+| `/play/local?mode=bots\|local`          | Setup + local match (bots / pass-and-play)        |
 | `/play/online`                          | Quick match (choose 2/3/4 players)                |
 | `/play/friends`                         | Create a private room                             |
 | `/join`, `/join/[code]`                 | Enter a code / invitation link                    |
@@ -100,8 +100,10 @@ Locale comes from a cookie (no URL prefix); see D-11.
   `RoomEnvironment` PMREM reflections, warm key light + cool rim.
 - Board: procedural (D-07), textures painted on canvas: colour, height→normal
   (Sobel), ORM (occlusion/roughness/metalness).
-- Animals: `assetLibrary` loads GLB templates (Meshopt decoder enabled) or falls
-  back to code-built rigged proxies; instances are cloned with
+- Animals: `assetLibrary` loads the GLB named in the asset manifest (Meshopt
+  decoder enabled). The committed GLBs are the development proxies exported by
+  `scripts/export-proxy-assets.ts`; if a file is missing or fails to load, the
+  same proxy is built in code at runtime. Instances are cloned with
   `SkeletonUtils.clone`; `AnimalController` wraps an `AnimationMixer` with state
   → clip resolution, fallbacks, cross-fades and one-shot promises.
 - Encounters: `animations/encounters.ts` (12 records) + the controller's generic
@@ -110,7 +112,9 @@ Locale comes from a cookie (no URL prefix); see D-11.
 - Camera: corner-on, elevation 48°, FOV 30°, fit-to-viewport distance, limited
   zoom (wheel/pinch/buttons), subtle impact shake (off in reduced motion).
 - Quality profiles: low / medium / high (+ auto with FPS-based step-down via
-  drei `PerformanceMonitor`). Low disables shadow maps and uses smaller textures.
+  drei `PerformanceMonitor`). Low disables shadow maps and MSAA and uses smaller
+  textures; High adds a lazily loaded post-processing chain (highlight bloom,
+  vignette, AgX tone mapping as an effect, SMAA — `rendering/PostEffects.tsx`).
 
 ### 3.4 UI design system
 
@@ -153,9 +157,12 @@ toggles, sliders, modal (focus management, Esc), toasts, spinner, alerts.
   guests, optional Google sign-in (anonymous accounts can be linked), ID tokens
   verified on the game server with `firebase-admin`. Without Firebase: the game
   server issues signed guest tokens (HMAC-SHA256).
-- Firestore (server writes via Admin SDK): `users/{uid}` profile + preferences +
-  stats, `matches/{matchId}` summaries. Clients read only their own data
-  (security rules in `firestore.rules`). Firestore never stores live match state.
+- Firestore: `users/{uid}` holds the display name and preferences (written by
+  the owner through `ProfileSync`) and statistics (written only by the game
+  server through the Admin SDK); `matches/{matchId}` summaries are written only
+  by the server and readable by participants. Rules:
+  `infra/firebase/firestore.rules`, tested on the emulator
+  (`pnpm test:firebase`). Firestore never stores live match state.
 - Region: `asia-south1` (Mumbai) recommended for the production database.
 
 ## 6. Timing and pacing (online)
@@ -173,3 +180,31 @@ A single Colyseus process holds many rooms (each room is small: ≤ 4 clients,
 event-driven, no physics). Horizontal scaling later needs
 `@colyseus/redis-presence` + `@colyseus/redis-driver` and sticky routing — not
 introduced until there is more than one server instance (brief §10).
+
+## 8. Cross-cutting services (web)
+
+| Service   | Location                            | Behaviour                                                                                                                                                                                                                              |
+| --------- | ----------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Analytics | `src/services/analytics`            | Typed event catalogue (`events.ts`) behind an `AnalyticsProvider` interface. Events are dropped unless the player opted in (Settings → Privacy) **and** a provider is registered; none is bundled. No personal data in event payloads. |
+| Ads       | `src/services/ads`                  | `AdProvider` interface, `NoAdsProvider` default, `AdPolicy` that refuses any placement during live play and enforces frequency caps. No ad SDK and no simulated ads.                                                                   |
+| Errors    | `src/services/errors.ts`            | `reportError` used by the route error page, the 3D canvas error boundary and global handlers; `setErrorReporter` plugs in a vendor.                                                                                                    |
+| Online    | `src/services/online/gameServer.ts` | Colyseus client, guest token cache, reconnection tokens per room (sessionStorage), join-error classification.                                                                                                                          |
+| Firebase  | `src/services/firebase`             | Lazily loaded SDK: anonymous sign-in, Google linking, profile reads/writes. Absent configuration → features shown as unavailable.                                                                                                      |
+
+## 9. Security summary
+
+- The server owns dice (CSPRNG), turn order, seats and identity; clients send
+  intents (`roll`, `move {pieceId}`) with an `actionId` and `expectedVersion`.
+- Every message is validated with zod; unknown message types are rejected.
+- Matchmaking (create, join, join by code, quick match) requires a verified
+  identity token **before** any room lookup, and each identity has a token
+  bucket of 30 requests refilled one per 10 s — so room codes cannot be probed
+  anonymously or at speed (`app.config.ts`).
+- Rate limits: per-client token bucket (20 burst, 10/s) plus Colyseus
+  `maxMessagesPerSecond = 40`; `POST /api/guest` 10 per hour per IP
+  (`TRUST_PROXY` makes the IP the real client address behind a proxy).
+- Guest tokens: HMAC-SHA256 with expiry, constant-time comparison; Firebase ID
+  tokens verified with `firebase-admin` when configured.
+- CORS allow-list for the HTTP API and matchmaking routes.
+- Web: security headers + CSP subset in `next.config.ts`; E2E hooks compiled
+  only into test builds (`NEXT_PUBLIC_E2E`).

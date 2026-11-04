@@ -1,0 +1,130 @@
+{
+  "project": "mobile",
+  "date": "2026-11-04T04:22:41.624Z",
+  "menu": {
+    "ttfbMs": 9,
+    "domContentLoadedMs": 90,
+    "firstContentfulPaintMs": 112,
+    "transferKB": 578
+  },
+  "game-low": {
+    "sceneReadyMs": 5201,
+    "renderer": {
+      "fps": 3.2,
+      "frameMs": 308.9,
+      "calls": 95,
+      "triangles": 167202,
+      "geometries": 23,
+      "textures": 51,
+      "programs": 14,
+      "dpr": 1.25
+    },
+    "assets": [
+      {
+        "species": "lion",
+        "source": "glb",
+        "loadMs": 57,
+        "missingClips": []
+      },
+      {
+        "species": "peacock",
+        "source": "glb",
+        "loadMs": 72,
+        "missingClips": []
+      },
+      {
+        "species": "horse",
+        "source": "glb",
+        "loadMs": 971,
+        "missingClips": []
+      },
+      {
+        "species": "fox",
+        "source": "glb",
+        "loadMs": 80,
+        "missingClips": []
+      }
+    ],
+    "jsHeapMB": 22
+  },
+  "game-medium": {
+    "sceneReadyMs": 3166,
+    "renderer": {
+      "fps": 10.7,
+      "frameMs": 93,
+      "calls": 153,
+      "triangles": 308698,
+      "geometries": 23,
+      "textures": 53,
+      "programs": 22,
+      "dpr": 1.75
+    },
+    "assets": [
+      {
+        "species": "lion",
+        "source": "glb",
+        "loadMs": 21,
+        "missingClips": []
+      },
+      {
+        "species": "peacock",
+        "source": "glb",
+        "loadMs": 23,
+        "missingClips": []
+      },
+      {
+        "species": "horse",
+        "source": "glb",
+        "loadMs": 28,
+        "missingClips": []
+      },
+      {
+        "species": "fox",
+        "source": "glb",
+        "loadMs": 31,
+        "missingClips": []
+      }
+    ],
+    "jsHeapMB": 22
+  },
+  "game-high": {
+    "sceneReadyMs": 14326,
+    "renderer": {
+      "fps": 1.2,
+      "frameMs": 857.5,
+      "calls": 172,
+      "triangles": 308717,
+      "geometries": 24,
+      "textures": 77,
+      "programs": 41,
+      "dpr": 2
+    },
+    "assets": [
+      {
+        "species": "lion",
+        "source": "glb",
+        "loadMs": 22,
+        "missingClips": []
+      },
+      {
+        "species": "peacock",
+        "source": "glb",
+        "loadMs": 28,
+        "missingClips": []
+      },
+      {
+        "species": "horse",
+        "source": "glb",
+        "loadMs": 32,
+        "missingClips": []
+      },
+      {
+        "species": "fox",
+        "source": "glb",
+        "loadMs": 37,
+        "missingClips": []
+      }
+    ],
+    "jsHeapMB": 22
+  }
+}

@@ -33,44 +33,44 @@ persistent name, preferences, statistics and match history.
 
 ## Functional requirements (checklist)
 
-Status is tracked in `docs/PROGRESS.md` — an item is complete only when it is
+Status is tracked in `docs/PROGRESS.md` (section 2) — an item is complete only when it is
 implemented **and** verified by a test or an inspected browser run.
 
 ### Gameplay
 
-- [ ] F1 Complete classic Ludo engine with configurable `RuleSet` (GAME_RULES.md)
-- [ ] F2 2-, 3- and 4-player games with documented seat allocation
-- [ ] F3 Legal move generation and highlighting; tap/click/keyboard selection
-- [ ] F4 Bonus rolls, three-sixes forfeit, captures, safe squares, blockades, exact finish
-- [ ] F5 Rankings, results screen, play again / restart
-- [ ] F6 Bots (three difficulties)
+- F1 Complete classic Ludo engine with configurable `RuleSet` (GAME_RULES.md)
+- F2 2-, 3- and 4-player games with documented seat allocation
+- F3 Legal move generation and highlighting; tap/click/keyboard selection
+- F4 Bonus rolls, three-sixes forfeit, captures, safe squares, blockades, exact finish
+- F5 Rankings, results screen, play again / restart
+- F6 Bots (three difficulties)
 
 ### Presentation
 
-- [ ] P1 3D tabletop board (wood, enamel, bevels, engraving) aligned with the engine
-- [ ] P2 Fixed 3/4 isometric camera (≈45° azimuth, 45–55° elevation), limited zoom
-- [ ] P3 Four animal types × four pieces with 10 animation states
-- [ ] P4 Twelve distinct directed capture interactions (0.8–1.4 s)
-- [ ] P5 3D dice; result decided before animation
-- [ ] P6 Quality profiles (low/medium/high/auto), reduced-motion mode
-- [ ] P7 Realistic final animal assets (**requires external art**)
+- P1 3D tabletop board (wood, enamel, bevels, engraving) aligned with the engine
+- P2 Fixed 3/4 isometric camera (≈45° azimuth, 45–55° elevation), limited zoom
+- P3 Four animal types × four pieces with 10 animation states
+- P4 Twelve distinct directed capture interactions (0.8–1.4 s)
+- P5 3D dice; result decided before animation
+- P6 Quality profiles (low/medium/high/auto), reduced-motion mode
+- P7 Realistic final animal assets (**requires external art**)
 
 ### Online
 
-- [ ] O1 Colyseus authoritative rooms (server dice, validation, idempotency)
-- [ ] O2 Quick match by size; private rooms with codes and invite links
-- [ ] O3 Lobby: seats, names, colours, animals, ready, host start
-- [ ] O4 Reconnection, refresh recovery, duplicate connections, abandonment, turn timers
-- [ ] O5 Match summaries persisted (when Firestore is configured)
+- O1 Colyseus authoritative rooms (server dice, validation, idempotency)
+- O2 Quick match by size; private rooms with codes and invite links
+- O3 Lobby: seats, names, colours, animals, ready, host start
+- O4 Reconnection, refresh recovery, duplicate connections, abandonment, turn timers
+- O5 Match summaries persisted (when Firestore is configured)
 
 ### Product
 
-- [ ] U1 Main menu, settings, how-to-play, profile
-- [ ] U2 English, Hindi, Simplified Chinese; persisted language
-- [ ] U3 Audio: dice, footsteps, vocalisations, capture, finish, victory, UI, music; independent volumes + mute
-- [ ] U4 Firebase guest + Google sign-in; server-side token verification
-- [ ] U5 Analytics and advertising abstractions (no SDKs; consent-gated; never during live play)
-- [ ] U6 Responsive phone portrait/landscape and desktop layouts
+- U1 Main menu, settings, how-to-play, profile
+- U2 English, Hindi, Simplified Chinese; persisted language
+- U3 Audio: dice, footsteps, vocalisations, capture, finish, victory, UI, music; independent volumes + mute
+- U4 Firebase guest + Google sign-in; server-side token verification
+- U5 Analytics and advertising abstractions (no SDKs; consent-gated; never during live play)
+- U6 Responsive phone portrait/landscape and desktop layouts
 
 ## Non-functional requirements
 

@@ -28,14 +28,15 @@ See `.env.example` for the full list.
 
 **Game server (runtime):**
 
-| Variable                                                            | Purpose                                                                              |
-| ------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
-| `PORT`                                                              | Listen port (default 2567)                                                           |
-| `CORS_ORIGINS`                                                      | Comma-separated web origins allowed to call the server                               |
-| `GUEST_TOKEN_SECRET`                                                | Long random secret for guest identities (required in production)                     |
-| `FIREBASE_PROJECT_ID`                                               | Enables Firebase ID-token verification and Firestore persistence                     |
-| `GOOGLE_APPLICATION_CREDENTIALS`                                    | Path to a service-account key **stored outside the repo** (or use workload identity) |
-| `RECONNECT_GRACE_SECONDS`, `TURN_SECONDS`, `ANIMATION_ALLOWANCE_MS` | Timing (defaults 45 s / 20 s / 4 s)                                                  |
+| Variable                                                            | Purpose                                                                                                                                                                                      |
+| ------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `PORT`                                                              | Listen port (default 2567)                                                                                                                                                                   |
+| `CORS_ORIGINS`                                                      | Comma-separated web origins allowed to call the server                                                                                                                                       |
+| `GUEST_TOKEN_SECRET`                                                | Long random secret for guest identities (required in production)                                                                                                                             |
+| `FIREBASE_PROJECT_ID`                                               | Enables Firebase ID-token verification and Firestore persistence                                                                                                                             |
+| `GOOGLE_APPLICATION_CREDENTIALS`                                    | Path to a service-account key **stored outside the repo** (or use workload identity)                                                                                                         |
+| `TRUST_PROXY`                                                       | Reverse-proxy hops in front of the server (default 0). Set to the real number (e.g. `1` behind one load balancer) so per-IP limits see the client address; never higher than the actual hops |
+| `RECONNECT_GRACE_SECONDS`, `TURN_SECONDS`, `ANIMATION_ALLOWANCE_MS` | Timing (defaults 45 s / 20 s / 4 s)                                                                                                                                                          |
 
 ## 3. Game server
 
@@ -115,7 +116,7 @@ pnpm test:firebase
 ## 6. Pre-release checklist
 
 - [ ] `pnpm typecheck && pnpm test && pnpm test:e2e && pnpm test:firebase` green
-- [ ] `NEXT_PUBLIC_E2E` unset; `GUEST_TOKEN_SECRET` set; `CORS_ORIGINS` exact
+- [ ] `NEXT_PUBLIC_E2E` unset; `GUEST_TOKEN_SECRET` set; `CORS_ORIGINS` exact; `TRUST_PROXY` equals the proxy hops
 - [ ] Final (non-proxy) animal assets supplied and the manifest updated (see ASSET_MANIFEST.md)
 - [ ] Privacy policy published before enabling any analytics provider
 - [ ] Load test the game server at the expected concurrency

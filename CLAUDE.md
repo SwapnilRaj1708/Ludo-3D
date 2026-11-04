@@ -64,13 +64,17 @@ docs/               PRD, ARCHITECTURE, GAME_RULES, DECISIONS, ASSET_MANIFEST, TE
 
 - Headless Chromium uses SwiftShader WebGL (slow). Browser tests pass
   `quality=low` and `speed=N`; E2E builds expose `window.__LUDO__` (read-only
-  state + events) and `?scenario=capture|victory` deterministic positions.
+  state + events) and `?scenario=capture|victory|choice` deterministic positions.
 - Browser tests default to a production build in `.next-e2e` (port 3100) plus
   the game server (port 2567). `E2E_SKIP_BUILD=1` serves an existing build.
   With `E2E_DEV=1` (next dev), do not edit `apps/web` or `packages/shared`
   during a run — hot reload restarts the match.
-- After changing a proxy builder, re-run `assets:proxies`; `test/glb-assets`
-  checks the committed GLBs load with every required clip.
-- Long specs: `--grep @slow` (full online match), `@screenshots`, `@perf`.
+- After changing a proxy builder, re-run `assets:proxies` (it skips species the
+  manifest marks `final`); `test/glb-assets` checks the committed GLBs load
+  with every required clip.
+- On-demand suites are excluded from `pnpm test:e2e` unless `E2E_ALL=1`; run
+  them with `pnpm --filter @ludo3d/web test:e2e:slow` (full online match),
+  `test:e2e:screenshots` (writes `docs/screenshots`) or `test:e2e:perf`
+  (writes `docs/perf`).
 - `/dev/animals?clip=Walk&t=0.4` renders all four animals for asset review
   (dev/E2E builds only).

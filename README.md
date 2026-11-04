@@ -11,6 +11,12 @@ traditional rules; online matches are server-authoritative.
 > [`docs/ASSET_MANIFEST.md`](docs/ASSET_MANIFEST.md). The game labels proxy
 > models in the UI.
 
+![Four-player match on desktop (development proxy animals)](docs/screenshots/board-desktop.jpg)
+
+More views (phone, capture sequence, victory, lobby, Hindi and Chinese menus) are
+in [`docs/screenshots`](docs/screenshots); status and known limitations are in
+[`docs/PROGRESS.md`](docs/PROGRESS.md).
+
 ## What is in the box
 
 |              |                                                                                                                                                                                                                               |
@@ -18,7 +24,7 @@ traditional rules; online matches are server-authoritative.
 | Rules engine | Pure, deterministic TypeScript (`packages/shared`): 2/3/4 players, configurable `RuleSet` (default _ClassicIndianDigital_), captures, safe squares, blockades, bonus rolls, three-sixes forfeit, exact finish, rankings, bots |
 | 3D client    | Next.js 16 + React Three Fiber: procedural tabletop board, rigged animal proxies with 14 clips each, 12 directed capture encounters, 3D dice, fitted 3/4 isometric camera, quality profiles, reduced motion, procedural audio |
 | Modes        | Pass & play, practice vs bots (3 difficulties), online quick match (2/3/4), private rooms with codes and invite links                                                                                                         |
-| Server       | Colyseus 0.18: CSPRNG dice, validation, idempotent commands, turn timers, reconnection, seat takeover, abandonment, match summaries                                                                                           |
+| Server       | Colyseus 0.18: CSPRNG dice, validation, idempotent commands, identity-gated and rate-limited matchmaking, turn timers, reconnection, seat takeover, abandonment, match summaries                                              |
 | Accounts     | Optional Firebase (anonymous guests, Google sign-in, Firestore profiles/history); guests work without it                                                                                                                      |
 | Languages    | English, हिन्दी, 简体中文                                                                                                                                                                                                     |
 
