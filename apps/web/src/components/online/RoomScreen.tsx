@@ -127,7 +127,9 @@ export function RoomScreen({ code }: { code: string }) {
             ? t('roomFull')
             : failure === 'unavailable'
               ? t('serverUnavailable')
-              : t('joinFailed');
+              : failure === 'rate-limited'
+                ? t('rateLimited')
+                : t('joinFailed');
     return (
       <Shell>
         <Alert>{message}</Alert>

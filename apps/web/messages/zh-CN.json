@@ -223,6 +223,7 @@
     "roomNotFound": "未找到房间。房间可能已结束，或房间码有误。",
     "roomFull": "该房间已满或对局已开始。",
     "joinFailed": "无法加入房间。",
+    "rateLimited": "尝试次数过多，请稍后再试。",
     "timeLeft": "{seconds} 秒",
     "latency": "{ms} 毫秒",
     "startingIn": "{seconds} 秒后开始…",

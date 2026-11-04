@@ -44,7 +44,13 @@ export function OnlineEntry({ kind }: { kind: 'online' | 'friends' }) {
       router.push(`/room/${room.roomId}`);
     } catch (e) {
       const failure = classifyJoinError(e);
-      setError(failure === 'unavailable' ? t('serverUnavailable') : t('joinFailed'));
+      setError(
+        failure === 'unavailable'
+          ? t('serverUnavailable')
+          : failure === 'rate-limited'
+            ? t('rateLimited')
+            : t('joinFailed'),
+      );
       setBusy(false);
     }
   };

@@ -118,11 +118,12 @@ export async function connectToRoom(code: string, displayName: string): Promise<
   return room;
 }
 
-export type JoinFailure = 'not-found' | 'full' | 'unavailable' | 'unknown';
+export type JoinFailure = 'not-found' | 'full' | 'unavailable' | 'rate-limited' | 'unknown';
 
 export function classifyJoinError(error: unknown): JoinFailure {
   if (error instanceof OnlineUnavailableError) return 'unavailable';
   const message = error instanceof Error ? error.message : String(error);
+  if (/too many/i.test(message)) return 'rate-limited';
   if (/not found|disposed|invalid room/i.test(message)) return 'not-found';
   if (/locked|full|already started/i.test(message)) return 'full';
   if (/fetch|network|ECONN|failed/i.test(message)) return 'unavailable';

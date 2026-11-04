@@ -110,6 +110,39 @@ describe('private rooms and lobby', () => {
     ).rejects.toThrow();
   });
 
+  it('demands an identity before any room lookup, so room codes cannot be probed anonymously', async () => {
+    const anonymous = newClient('');
+    await expect(anonymous.client.joinById('ZZZZZZ', { displayName: 'Probe' })).rejects.toThrow(
+      /unauthorized/,
+    );
+    // With an identity, an unknown code is simply not found.
+    const known = newClient();
+    await expect(known.client.joinById('ZZZZZZ', { displayName: 'Probe' })).rejects.toThrow(
+      /not found|invalid/i,
+    );
+  });
+
+  it('rate-limits matchmaking per identity (room-code guessing, room spam)', async () => {
+    const guesser = newClient();
+    const attempt = () =>
+      guesser.client.joinById('ZZZZZZ', { displayName: 'Guess' }).then(
+        () => 'joined',
+        (e: Error) => e.message,
+      );
+    const results: string[] = [];
+    for (let i = 0; i < 31; i++) results.push(await attempt());
+    expect(results.slice(0, 30).every((m) => !/too many/.test(m))).toBe(true);
+    expect(results[30]).toMatch(/too many matchmaking requests/);
+    // Other identities are unaffected.
+    const other = newClient();
+    const room = await other.client.create('ludo', {
+      mode: 'private',
+      playerCount: 2,
+      displayName: 'Other',
+    });
+    expect(isValidRoomCode(room.roomId)).toBe(true);
+  });
+
   it('matches quick-play clients by player count and starts automatically', async () => {
     const a = newClient();
     const b = newClient();

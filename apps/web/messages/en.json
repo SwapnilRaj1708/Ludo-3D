@@ -223,6 +223,7 @@
     "roomNotFound": "Room not found. It may have finished or the code is wrong.",
     "roomFull": "That room is full or the match has already started.",
     "joinFailed": "Could not join the room.",
+    "rateLimited": "Too many attempts. Wait a moment and try again.",
     "timeLeft": "{seconds}s",
     "latency": "{ms} ms",
     "startingIn": "Starting in {seconds}…",
