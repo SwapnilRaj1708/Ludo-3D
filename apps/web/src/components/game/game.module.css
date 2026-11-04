@@ -562,6 +562,16 @@
   .panel[data-slot='br'] {
     bottom: calc(96px + var(--safe-bottom));
   }
+  /* Choice chips sit in the free band between the board and the lower player
+     panels (they would otherwise grow upward over those panels). The action
+     bar's top is the roll button's top edge, about 76px above the screen
+     bottom; the lower panels end about 152px above it. */
+  .choices {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: calc(100% + 88px);
+  }
   .zoomControls {
     display: none;
   }
