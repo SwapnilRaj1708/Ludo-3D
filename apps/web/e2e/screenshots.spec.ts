@@ -12,8 +12,9 @@ import { getEventTypes, waitForGameReady } from './helpers';
 const OUT = fileURLToPath(new URL('../../../docs/screenshots', import.meta.url));
 mkdirSync(OUT, { recursive: true });
 
+/** JPEG keeps the committed documentation images small (phone shots are ~1080×2400). */
 async function shot(page: Page, name: string) {
-  await page.screenshot({ path: resolve(OUT, `${name}.png`) });
+  await page.screenshot({ path: resolve(OUT, `${name}.jpg`), type: 'jpeg', quality: 82 });
 }
 
 test.describe('documentation screenshots @screenshots @mobile', () => {
@@ -34,27 +35,12 @@ test.describe('documentation screenshots @screenshots @mobile', () => {
   });
 
   test('choosing between animals', async ({ page }, info) => {
-    // Seeded so the human rolls a six with several animals able to move.
-    await page.goto('/play/local?mode=local&autostart=1&players=4&seed=3&quality=high');
+    // Deterministic: two animals out and a scripted 4, so the roll offers a choice.
+    await page.goto('/play/local?scenario=choice&quality=high');
     await waitForGameReady(page);
-    for (let i = 0; i < 40; i++) {
-      if (
-        await page
-          .locator('[data-testid^="choose-"]')
-          .first()
-          .isVisible()
-          .catch(() => false)
-      )
-        break;
-      const roll = page.getByTestId('roll-button');
-      if (await roll.isEnabled().catch(() => false)) await roll.click();
-      else {
-        const choice = page.locator('[data-testid^="choose-"]').first();
-        if (await choice.isVisible().catch(() => false)) break;
-      }
-      await page.waitForTimeout(400);
-    }
-    await page.waitForTimeout(600);
+    await page.getByTestId('roll-button').click();
+    await expect(page.locator('[data-testid^="choose-"]')).toHaveCount(2);
+    await page.waitForTimeout(1200);
     await shot(page, `active-turn-${info.project.name}`);
   });
 
@@ -81,8 +67,13 @@ test.describe('documentation screenshots @screenshots @mobile', () => {
     await page.goto('/play/local?scenario=victory&quality=high');
     await waitForGameReady(page);
     await page.getByTestId('roll-button').click();
-    await expect(page.getByTestId('results')).toBeVisible({ timeout: 60_000 });
-    await page.waitForTimeout(1000);
+    const results = page.getByTestId('results');
+    await expect(results).toBeVisible({ timeout: 60_000 });
+    // On CPU-rendered WebGL the compositor can start the fade-in seconds late.
+    await expect
+      .poll(() => results.evaluate((el) => getComputedStyle(el).opacity), { timeout: 30_000 })
+      .toBe('1');
+    await page.waitForTimeout(500);
     await shot(page, `victory-${info.project.name}`);
   });
 

@@ -64,6 +64,22 @@ test.describe('local play', () => {
     await expect(page).toHaveURL(/\/$/);
   });
 
+  test('keyboard: R rolls and number keys choose an animal', async ({ page }) => {
+    // Two animals out and a scripted 4: the roll always offers a real choice.
+    await page.goto('/play/local?scenario=choice&quality=low&speed=4');
+    await waitForGameReady(page);
+    await page.keyboard.press('r');
+    const chips = page.locator('[data-testid^="choose-"]');
+    await expect(chips).toHaveCount(2);
+    expect(await getEventTypes(page)).toContain('dice-rolled');
+    await page.keyboard.press('2');
+    await expect.poll(() => getEventTypes(page)).toContain('piece-moved');
+    // The second listed animal moved: four squares from progress 15.
+    await expect
+      .poll(async () => (await getState(page)).pieces.find((p) => p.id === 'yellow-1')?.progress)
+      .toBe(19);
+  });
+
   test('pause menu can leave the match', async ({ page }) => {
     await page.goto('/play/local?mode=bots&autostart=1&players=2&quality=low');
     await waitForGameReady(page);

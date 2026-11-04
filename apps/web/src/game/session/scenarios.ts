@@ -75,6 +75,16 @@ export function victoryScenario(): Scenario {
   return { seats: [0, 2], human: 0, state, dice: [1] };
 }
 
+/**
+ * Yellow has two animals out on open track and rolls a 4: two different legal
+ * moves, so the game asks the player to choose (2 players, Red still in yard).
+ */
+export function choiceScenario(): Scenario {
+  const base = createGame({ seats: [0, 2], firstSeat: 0 });
+  const state = withPieces(base, { 'yellow-0': 2, 'yellow-1': 15 });
+  return { seats: [0, 2], human: 0, state, dice: [4] };
+}
+
 export function scenarioName(s: Scenario): string {
   return s.seats.map((seat) => SEAT_COLOR[seat]).join('-');
 }

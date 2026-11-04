@@ -20,7 +20,12 @@ import { AnimalIcon } from '@/components/game/AnimalIcon';
 import { GameScreen } from '@/components/game/GameScreen';
 import { Alert, Button, Card, Modal, Segmented, TextInput } from '@/components/ui';
 import { getAudio } from '@/game/audio/AudioEngine';
-import { captureScenario, victoryScenario, type Scenario } from '@/game/session/scenarios';
+import {
+  captureScenario,
+  choiceScenario,
+  victoryScenario,
+  type Scenario,
+} from '@/game/session/scenarios';
 import {
   LocalSession,
   clearStoredLocalMatch,
@@ -76,6 +81,7 @@ export function LocalPlay() {
     if (publicConfig.e2e && scenarioName && !session) {
       let scenario: Scenario | null = null;
       if (scenarioName === 'victory') scenario = victoryScenario();
+      if (scenarioName === 'choice') scenario = choiceScenario();
       if (scenarioName === 'capture') {
         scenario = captureScenario(
           (params.get('attacker') ?? 'lion') as Species,

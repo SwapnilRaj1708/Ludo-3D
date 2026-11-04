@@ -18,6 +18,16 @@ test('performance report @perf @mobile', async ({ page }, info) => {
   };
 
   await page.goto('/');
+  // The paint entry is recorded asynchronously; give it a moment to appear.
+  await page
+    .waitForFunction(
+      () => performance.getEntriesByName('first-contentful-paint').length > 0,
+      null,
+      {
+        timeout: 5_000,
+      },
+    )
+    .catch(() => undefined);
   report.menu = await page.evaluate(() => {
     const nav = performance.getEntriesByType('navigation')[0] as PerformanceNavigationTiming;
     const paint = performance.getEntriesByName('first-contentful-paint')[0];
