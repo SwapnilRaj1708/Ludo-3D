@@ -6,6 +6,8 @@ import { defineConfig, devices } from '@playwright/test';
  * to reuse a running `next dev` (NEXT_PUBLIC_E2E=1) on port 3000 instead.
  */
 const DEV = process.env.E2E_DEV === '1';
+/** On-demand suites (screenshots, performance, the long online match) run only when asked. */
+const ON_DEMAND = process.env.E2E_ALL === '1' ? undefined : /@screenshots|@perf|@slow/;
 const PORT = DEV ? 3000 : 3100;
 
 /**
@@ -39,8 +41,9 @@ export default defineConfig({
     {
       name: 'desktop',
       use: { ...devices['Desktop Chrome'], viewport: { width: 1280, height: 800 } },
+      grepInvert: ON_DEMAND,
     },
-    { name: 'mobile', use: { ...devices['Pixel 7'] }, grep: /@mobile/ },
+    { name: 'mobile', use: { ...devices['Pixel 7'] }, grep: /@mobile/, grepInvert: ON_DEMAND },
   ],
   webServer: [
     {
@@ -57,7 +60,12 @@ export default defineConfig({
       },
     },
     {
-      command: DEV ? 'pnpm dev' : 'pnpm build:e2e && pnpm start:e2e',
+      // E2E_SKIP_BUILD=1 serves an existing `.next-e2e` build (e.g. built earlier in CI).
+      command: DEV
+        ? 'pnpm dev'
+        : process.env.E2E_SKIP_BUILD === '1'
+          ? 'pnpm start:e2e'
+          : 'pnpm build:e2e && pnpm start:e2e',
       url: `http://localhost:${PORT}`,
       reuseExistingServer: true,
       timeout: 420_000,

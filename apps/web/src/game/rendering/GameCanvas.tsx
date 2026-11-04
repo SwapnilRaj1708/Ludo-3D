@@ -13,6 +13,8 @@ import { Dice3D } from '../dice/Dice3D';
 import { CAMERA_FOV, CameraRig } from './CameraRig';
 import { ActiveYardGlow, Particles, TargetMarker } from './Effects';
 import type { QualityProfile } from './quality';
+import { publicConfig } from '@/services/config';
+import { PerfProbe } from './PerfProbe';
 import { SceneEnvironment } from './SceneEnvironment';
 
 export interface GameCanvasProps {
@@ -71,6 +73,7 @@ export default function GameCanvas(props: GameCanvasProps) {
       style={{ touchAction: 'none' }}
     >
       <FrameDriver controller={controller} />
+      {publicConfig.e2e ? <PerfProbe /> : null}
       <PerformanceMonitor onDecline={() => props.onPerformanceDecline?.()} flipflops={2} />
       <SceneEnvironment quality={quality} />
       <CameraRig azimuth={azimuth} controller={controller} reducedMotion={reducedMotion} />

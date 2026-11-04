@@ -107,4 +107,69 @@ test.describe('online multiplayer (two independent browsers)', () => {
     expect(a!.turn.seat).toBe(b!.turn.seat);
     for (const c of contexts) await c.close();
   });
+
+  test('two browsers play a complete online match to the end with identical state @slow', async ({
+    browser,
+  }) => {
+    test.setTimeout(1_500_000);
+    const contexts = await Promise.all([browser.newContext(), browser.newContext()]);
+    const [host, guest] = (await Promise.all(contexts.map((c) => c.newPage()))) as [Page, Page];
+    const params = '?speed=16&quality=low';
+    await host.goto('/play/friends');
+    await host.getByTestId('online-name').fill('Asha');
+    await host.getByTestId('online-count-2').click();
+    await host.getByTestId('online-go').click();
+    await expect(host).toHaveURL(/\/room\/[A-Z0-9]{6}$/);
+    const code = (await host.getByTestId('room-code').textContent())!.trim();
+    await guest.goto(`/room/${code}${params}`);
+    await guest.getByLabel(/your name/i).fill('Bilal');
+    await guest.getByRole('button', { name: /join/i }).click();
+    await host.goto(`/room/${code}${params}`);
+    await expect(host.getByTestId('lobby-seat')).toHaveCount(2);
+    await host.getByTestId('ready-toggle').click();
+    await guest.getByTestId('ready-toggle').click();
+    await host.getByTestId('start-online').click();
+    await waitForGameReady(host);
+    await waitForGameReady(guest);
+
+    const deadline = Date.now() + 1_400_000;
+    const done = async () =>
+      (await host.getByTestId('game-screen').getAttribute('data-status')) === 'finished' &&
+      (await guest.getByTestId('game-screen').getAttribute('data-status')) === 'finished';
+    while (!(await done())) {
+      if (Date.now() > deadline) throw new Error('online match did not finish');
+      let acted = false;
+      for (const page of [host, guest]) {
+        const roll = page.getByTestId('roll-button');
+        if (await roll.isEnabled().catch(() => false)) {
+          await roll.click({ timeout: 2_000 }).catch(() => undefined);
+          acted = true;
+          continue;
+        }
+        const choice = page.locator('[data-testid^="choose-"]').first();
+        if (await choice.isVisible().catch(() => false)) {
+          await choice.click({ timeout: 2_000 }).catch(() => undefined);
+          acted = true;
+        }
+      }
+      if (!acted) await host.waitForTimeout(100);
+    }
+    const [a, b] = await Promise.all([getState(host), getState(guest)]);
+    expect(a).toEqual(b);
+    expect(a.status).toBe('finished');
+    expect(a.rankings).toHaveLength(2);
+    // Captures (if any happened) were seen identically by both browsers.
+    const captures = (p: Page) =>
+      p.evaluate(() =>
+        (
+          window as unknown as { __LUDO__: { events: { type: string; victimId?: string }[] } }
+        ).__LUDO__.events
+          .filter((e) => e.type === 'piece-captured')
+          .map((e) => e.victimId),
+      );
+    expect(await captures(host)).toEqual(await captures(guest));
+    await expect(host.getByTestId('results')).toBeVisible();
+    await expect(guest.getByTestId('results')).toBeVisible();
+    for (const c of contexts) await c.close();
+  });
 });
