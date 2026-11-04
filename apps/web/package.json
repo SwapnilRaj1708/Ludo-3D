@@ -12,7 +12,11 @@
     "test": "vitest run",
     "test:e2e": "playwright test",
     "build:e2e": "NEXT_PUBLIC_E2E=1 NEXT_PUBLIC_GAME_SERVER_URL=http://localhost:2567 NEXT_DIST_DIR=.next-e2e next build",
-    "start:e2e": "NEXT_DIST_DIR=.next-e2e next start --port 3100"
+    "start:e2e": "NEXT_DIST_DIR=.next-e2e next start --port 3100",
+    "assets:proxies": "tsx scripts/export-proxy-assets.ts",
+    "test:e2e:slow": "E2E_ALL=1 playwright test --grep @slow",
+    "test:e2e:screenshots": "E2E_ALL=1 playwright test --grep @screenshots",
+    "test:e2e:perf": "E2E_ALL=1 playwright test --grep @perf"
   },
   "dependencies": {
     "@colyseus/sdk": "0.18.9",
@@ -36,9 +40,14 @@
     "zustand": "5.0.16"
   },
   "devDependencies": {
+    "@gltf-transform/core": "4.5.1",
+    "@gltf-transform/extensions": "4.5.1",
+    "@gltf-transform/functions": "4.5.1",
     "@playwright/test": "1.63.0",
     "@types/react": "19.3.0",
     "@types/react-dom": "19.3.0",
-    "@types/three": "0.187.0"
+    "@types/three": "0.187.0",
+    "meshoptimizer": "1.3.0",
+    "tsx": "^4.23.15"
   }
 }
