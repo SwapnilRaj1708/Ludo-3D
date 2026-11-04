@@ -297,6 +297,19 @@
   pointer-events: none;
 }
 
+/* During a match the HUD owns the top row (menu, turn banner, badge) and, on
+   portrait screens, the two upper player panels: notices go just below them. */
+:global(body[data-hud='game']) .toastRegion {
+  top: calc(64px + var(--safe-top));
+  width: min(92vw, 24rem);
+}
+
+@media (max-aspect-ratio: 4/5) {
+  :global(body[data-hud='game']) .toastRegion {
+    top: calc(128px + var(--safe-top));
+  }
+}
+
 .toast {
   padding: var(--space-3) var(--space-4);
   border-radius: var(--radius-md);

@@ -322,6 +322,14 @@ export function GameScreen({
     [selectable, state.pieces],
   );
 
+  // Lets global UI (toasts) keep clear of the in-game HUD while a match is shown.
+  useEffect(() => {
+    document.body.dataset.hud = 'game';
+    return () => {
+      delete document.body.dataset.hud;
+    };
+  }, []);
+
   // Keyboard: Space/Enter/R rolls, 1–4 picks the n-th movable animal.
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -351,8 +359,12 @@ export function GameScreen({
     };
   }, [controller]);
 
+  // A final model that fails to load is replaced by its runtime proxy; the
+  // badge must then say so even though the manifest lists final art.
+  const [runtimeProxyInUse, setRuntimeProxyInUse] = useState(false);
   const onAssetsReady = useCallback((templates: Record<string, AnimalTemplate>) => {
     templatesRef.current = templates;
+    setRuntimeProxyInUse(Object.values(templates).some((t) => t.source === 'runtime-proxy'));
     if (publicConfig.e2e) {
       (window as unknown as { __LUDO_ASSETS__?: unknown }).__LUDO_ASSETS__ = Object.values(
         templates,
@@ -368,7 +380,7 @@ export function GameScreen({
 
   const azimuth = seatAzimuth(viewSeat);
   const activeInfo = snapshot.seats.find((s) => s.seat === activeSeat);
-  const proxyBadge = usesProxyAssets();
+  const proxyBadge = usesProxyAssets() || runtimeProxyInUse;
 
   let prompt: string;
   if (state.status === 'finished') prompt = '';
@@ -461,7 +473,12 @@ export function GameScreen({
         >
           {t('menu')}
         </Button>
-        <div className={styles.banner} aria-live="polite" data-testid="turn-banner">
+        <div
+          className={styles.banner}
+          aria-live="polite"
+          data-testid="turn-banner"
+          data-empty={prompt ? undefined : '1'}
+        >
           <span className={styles.bannerDot} data-color={SEAT_COLOR[activeSeat]} />
           <span>{prompt}</span>
         </div>
