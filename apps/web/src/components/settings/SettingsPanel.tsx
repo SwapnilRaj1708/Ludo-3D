@@ -96,6 +96,18 @@ export function SettingsPanel() {
         />
       </Card>
 
+      <Card title={t('privacy')}>
+        <Toggle
+          label={t('analyticsConsent')}
+          checked={s.analyticsConsent}
+          testId="setting-analytics"
+          onChange={(analyticsConsent) => s.update({ analyticsConsent })}
+        />
+        <p style={{ fontSize: 'var(--text-xs)', color: 'var(--color-text-subtle)' }}>
+          {t('analyticsHint')}
+        </p>
+      </Card>
+
       <Card title={t('language')}>
         <LanguageSelector />
       </Card>

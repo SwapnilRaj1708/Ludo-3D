@@ -21,6 +21,9 @@ import {
   forgetRoom,
   type JoinFailure,
 } from '@/services/online/gameServer';
+import type { QualityLevel } from '@/game/rendering/quality';
+import { analytics } from '@/services/analytics';
+import { publicConfig } from '@/services/config';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useToastStore } from '@/stores/toastStore';
 import { Lobby } from './Lobby';
@@ -75,10 +78,19 @@ export function RoomScreen({ code }: { code: string }) {
       if (n.kind === 'player-abandoned') push(t('playerAbandoned', { name }), 'warning');
       if (n.kind === 'turn-timeout') push(t('turnTimeout', { name }), 'neutral');
     });
-    const onDrop = () => setStatus('reconnecting');
+    let droppedAt = 0;
+    const onDrop = () => {
+      droppedAt = Date.now();
+      setStatus('reconnecting');
+      analytics.track({ name: 'player_disconnected' });
+    };
     const onReconnect = () => {
       setStatus('connected');
       push(t('reconnected'), 'success', 1500);
+      analytics.track({
+        name: 'player_reconnected',
+        afterSeconds: Math.round((Date.now() - droppedAt) / 1000),
+      });
     };
     const onLeave = (closeCode: number) => {
       setStatus('disconnected');
@@ -186,11 +198,25 @@ function OnlineMatch({
     }
   }, [room]);
   useEffect(() => () => session?.dispose(), [session]);
+  // Test builds only: accelerate local animation and force a render profile.
+  const testOverrides = useMemo((): { speed?: number; forceQuality?: QualityLevel } => {
+    if (!publicConfig.e2e || typeof window === 'undefined') return {};
+    const params = new URLSearchParams(window.location.search);
+    const speed = Number(params.get('speed') ?? '1');
+    const quality = params.get('quality');
+    return {
+      speed: Number.isFinite(speed) ? Math.min(20, Math.max(0.5, speed)) : 1,
+      forceQuality:
+        quality === 'low' || quality === 'medium' || quality === 'high' ? quality : undefined,
+    };
+  }, []);
   if (!session) return <Spinner label={t('connecting')} />;
   const isHost = playersOf(room).find((p) => p.sessionId === room.sessionId)?.isHost ?? false;
   return (
     <GameScreen
       session={session}
+      speed={testOverrides.speed}
+      forceQuality={testOverrides.forceQuality}
       viewSeat={session.localSeat}
       connection={status}
       onExit={() => {

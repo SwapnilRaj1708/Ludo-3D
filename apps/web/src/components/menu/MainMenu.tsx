@@ -2,12 +2,15 @@
 
 import Link from 'next/link';
 import { useTranslations } from 'next-intl';
+import { analytics } from '@/services/analytics';
+import type { GameModeName } from '@/services/analytics/events';
 import { isOnlineConfigured } from '@/services/config';
 import { LanguageSelector } from './LanguageSelector';
 import { Logo } from './Logo';
 import styles from './menu.module.css';
 
 interface MenuEntry {
+  mode: GameModeName;
   href: string;
   label: string;
   hint: string;
@@ -23,6 +26,7 @@ export function MainMenu() {
 
   const entries: MenuEntry[] = [
     {
+      mode: 'online',
       href: '/play/online',
       label: t('playOnline'),
       hint: t('playOnlineHint'),
@@ -31,6 +35,7 @@ export function MainMenu() {
       requiresServer: true,
     },
     {
+      mode: 'friends',
       href: '/play/friends',
       label: t('playWithFriends'),
       hint: t('playWithFriendsHint'),
@@ -38,6 +43,7 @@ export function MainMenu() {
       requiresServer: true,
     },
     {
+      mode: 'join',
       href: '/join',
       label: t('joinRoom'),
       hint: t('joinRoomHint'),
@@ -45,6 +51,7 @@ export function MainMenu() {
       requiresServer: true,
     },
     {
+      mode: 'bots',
       href: '/play/local?mode=bots',
       label: t('playWithBots'),
       hint: t('playWithBotsHint'),
@@ -52,6 +59,7 @@ export function MainMenu() {
       primary: !online,
     },
     {
+      mode: 'local',
       href: '/play/local?mode=local',
       label: t('passAndPlay'),
       hint: t('passAndPlayHint'),

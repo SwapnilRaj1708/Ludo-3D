@@ -12,12 +12,14 @@ import {
   getCurrentLegalMoves,
   movesAreEquivalent,
   speciesForSeat,
+  type GameEvent,
   type Move,
   type PieceId,
   type SeatIndex,
 } from '@ludo3d/shared';
 import { Button, Modal, Spinner } from '@/components/ui';
 import { useReducedMotion } from '@/hooks/useReducedMotion';
+import { analytics } from '@/services/analytics';
 import { publicConfig } from '@/services/config';
 import { useSettingsStore } from '@/stores/settingsStore';
 import { useToastStore } from '@/stores/toastStore';
@@ -206,6 +208,46 @@ export function GameScreen({
     });
   }, [controller, reducedMotion, speed, onNotice]);
 
+  // Product analytics (consent-gated; a no-op unless enabled in Settings).
+  const startedAtRef = useRef(Date.now());
+  const trackGameEvents = useCallback(
+    (events: readonly GameEvent[], snap: SessionSnapshot) => {
+      const mode = session.kind;
+      for (const e of events) {
+        if (e.type === 'dice-rolled') analytics.track({ name: 'dice_rolled', value: e.value });
+        else if (e.type === 'piece-moved') analytics.track({ name: 'piece_moved', kind: e.kind });
+        else if (e.type === 'piece-captured') {
+          analytics.track({
+            name: 'animal_captured',
+            encounter: `${speciesForSeat(theme, e.seat)}>${speciesForSeat(theme, e.victimSeat)}`,
+          });
+        } else if (e.type === 'game-over') {
+          const locals = snap.seats.filter((x) => x.isLocal);
+          const rank =
+            locals.length === 1
+              ? (snap.state.players.find((p) => p.seat === locals[0]!.seat)?.rank ?? null)
+              : null;
+          analytics.track({
+            name: 'match_completed',
+            mode,
+            durationSeconds: Math.round((Date.now() - startedAtRef.current) / 1000),
+            rank,
+          });
+        }
+      }
+    },
+    [session.kind, theme],
+  );
+
+  useEffect(() => {
+    analytics.track({
+      name: 'match_started',
+      mode: session.kind,
+      players: session.getSnapshot().state.seats.length,
+      ruleProfile: session.getSnapshot().state.rules.id,
+    });
+  }, [session]);
+
   // Session → presentation.
   useEffect(() => {
     return session.subscribe((update) => {
@@ -216,8 +258,9 @@ export function GameScreen({
       setSnapshot(update.snapshot);
       if (update.resync) controller.snapTo(update.snapshot.state);
       else controller.ingest(update.events, update.snapshot.state);
+      trackGameEvents(update.events, update.snapshot);
     });
-  }, [session, controller]);
+  }, [session, controller, trackGameEvents]);
 
   // Whenever the animation queue drains: let bots act and offer moves.
   const state = snapshot.state;
@@ -310,6 +353,16 @@ export function GameScreen({
 
   const onAssetsReady = useCallback((templates: Record<string, AnimalTemplate>) => {
     templatesRef.current = templates;
+    if (publicConfig.e2e) {
+      (window as unknown as { __LUDO_ASSETS__?: unknown }).__LUDO_ASSETS__ = Object.values(
+        templates,
+      ).map((t) => ({
+        species: t.species,
+        source: t.source,
+        loadMs: t.loadMs,
+        missingClips: t.missingClips,
+      }));
+    }
     setAssetsReady(true);
   }, []);
 
@@ -546,8 +599,12 @@ export function GameScreen({
                 onClick={() => {
                   setConfirm(null);
                   setMenuOpen(false);
-                  if (confirm === 'leave') onExit();
-                  else onPlayAgain();
+                  if (confirm === 'leave') {
+                    if (snapshotRef.current.state.status === 'playing') {
+                      analytics.track({ name: 'match_abandoned', mode: session.kind });
+                    }
+                    onExit();
+                  } else onPlayAgain();
                 }}
               >
                 {confirm === 'leave' ? t('leave') : t('restart')}

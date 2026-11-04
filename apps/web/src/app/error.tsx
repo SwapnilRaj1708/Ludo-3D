@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useTranslations } from 'next-intl';
 import { useEffect } from 'react';
 import { Button } from '@/components/ui';
+import { reportError } from '@/services/errors';
 
 export default function RouteError({
   error,
@@ -15,7 +16,7 @@ export default function RouteError({
   const t = useTranslations('errors');
   const tCommon = useTranslations('common');
   useEffect(() => {
-    console.error(error);
+    reportError(error, 'route', error.digest ? { digest: error.digest } : undefined);
   }, [error]);
   return (
     <main id="main" className="page">

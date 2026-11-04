@@ -150,7 +150,10 @@
     "gameplay": "Gameplay",
     "autoMove": "Auto-move when only one choice",
     "language": "Language",
-    "saved": "Settings saved on this device"
+    "saved": "Settings saved on this device",
+    "privacy": "Privacy",
+    "analyticsConsent": "Share anonymous usage statistics",
+    "analyticsHint": "Helps us improve match flow and reliability. No personal data is collected, and nothing is sent unless you turn this on."
   },
   "howToPlay": {
     "title": "How to Play",

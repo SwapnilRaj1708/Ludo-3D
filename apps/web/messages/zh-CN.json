@@ -150,7 +150,10 @@
     "gameplay": "玩法",
     "autoMove": "只有一种走法时自动移动",
     "language": "语言",
-    "saved": "设置已保存在此设备上"
+    "saved": "设置已保存在此设备上",
+    "privacy": "隐私",
+    "analyticsConsent": "分享匿名使用统计",
+    "analyticsHint": "帮助我们改进对局流程和稳定性。不会收集个人数据；除非你开启此项，否则不会发送任何内容。"
   },
   "howToPlay": {
     "title": "玩法说明",

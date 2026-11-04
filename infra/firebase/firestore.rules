@@ -1,0 +1,68 @@
+rules_version = '2';
+
+// Ludo 3D Firestore security rules.
+// - Live match state never lives in Firestore (Colyseus owns it).
+// - Match summaries and statistics are written only by the game server via the
+//   Admin SDK (which bypasses these rules); clients can never write them.
+// - A signed-in user (anonymous or Google) may read and edit only their own
+//   profile fields, and read summaries of matches they took part in.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function validName(name) {
+      return name is string && name.size() >= 1 && name.size() <= 40;
+    }
+
+    function validVolume(v) {
+      return v is number && v >= 0 && v <= 1;
+    }
+
+    function validPreferences(p) {
+      return p is map
+        && p.keys().hasOnly(['locale', 'musicVolume', 'sfxVolume', 'animalVolume', 'muted',
+                             'quality', 'reducedMotion', 'autoMove', 'analyticsConsent'])
+        && (!('locale' in p) || p.locale in ['en', 'hi', 'zh-CN'])
+        && (!('musicVolume' in p) || validVolume(p.musicVolume))
+        && (!('sfxVolume' in p) || validVolume(p.sfxVolume))
+        && (!('animalVolume' in p) || validVolume(p.animalVolume))
+        && (!('muted' in p) || p.muted is bool)
+        && (!('quality' in p) || p.quality in ['auto', 'low', 'medium', 'high'])
+        && (!('reducedMotion' in p) || p.reducedMotion in ['system', 'on', 'off'])
+        && (!('autoMove' in p) || p.autoMove is bool)
+        && (!('analyticsConsent' in p) || p.analyticsConsent is bool);
+    }
+
+    function validProfileWrite() {
+      let data = request.resource.data;
+      return data.keys().hasOnly(['displayName', 'preferences', 'stats', 'createdAt', 'updatedAt'])
+        && (!('displayName' in data) || validName(data.displayName))
+        && (!('preferences' in data) || validPreferences(data.preferences))
+        && data.updatedAt == request.time;
+    }
+
+    match /users/{uid} {
+      allow read: if isOwner(uid);
+      // Clients may never set or change statistics (server-maintained).
+      allow create: if isOwner(uid) && validProfileWrite() && !('stats' in request.resource.data);
+      allow update: if isOwner(uid) && validProfileWrite()
+        && request.resource.data.get('stats', null) == resource.data.get('stats', null);
+      allow delete: if false;
+    }
+
+    match /matches/{matchId} {
+      allow read: if signedIn() && request.auth.uid in resource.data.playerUids;
+      allow write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -16,6 +16,8 @@ export interface SettingsValues {
   reducedMotion: ReducedMotionSetting;
   autoMove: boolean;
   displayName: string;
+  /** Opt-in only: analytics stay off until the player enables them. */
+  analyticsConsent: boolean;
 }
 
 interface SettingsStore extends SettingsValues {
@@ -32,6 +34,7 @@ export const DEFAULT_SETTINGS: SettingsValues = {
   reducedMotion: 'system',
   autoMove: true,
   displayName: '',
+  analyticsConsent: false,
 };
 
 const clamp01 = (n: unknown, fallback: number) =>
@@ -66,6 +69,7 @@ export const useSettingsStore = create<SettingsStore>()(
             : current.reducedMotion,
           autoMove: typeof p.autoMove === 'boolean' ? p.autoMove : current.autoMove,
           displayName: typeof p.displayName === 'string' ? p.displayName.slice(0, 40) : '',
+          analyticsConsent: p.analyticsConsent === true,
         };
       },
       onRehydrateStorage: () => () => {

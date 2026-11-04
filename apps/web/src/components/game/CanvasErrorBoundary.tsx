@@ -1,6 +1,7 @@
 'use client';
 
 import { Component, type ReactNode } from 'react';
+import { reportError } from '@/services/errors';
 
 interface State {
   error: Error | null;
@@ -21,7 +22,7 @@ export class CanvasErrorBoundary extends Component<
   }
 
   override componentDidCatch(error: Error) {
-    console.error('[3d] scene crashed', error);
+    reportError(error, '3d-scene');
   }
 
   override render() {

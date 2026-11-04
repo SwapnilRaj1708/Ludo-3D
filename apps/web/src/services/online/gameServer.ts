@@ -4,6 +4,7 @@ import { Client, type Room } from '@colyseus/sdk';
 import { LUDO_ROOM_NAME, type JoinOptions } from '@ludo3d/shared/protocol';
 import { publicConfig } from '@/services/config';
 import { readLocal, readSession, writeLocal, writeSession } from '@/utils/storage';
+import { analytics } from '@/services/analytics';
 import { getIdToken } from '@/services/firebase/auth';
 
 /**
@@ -48,6 +49,7 @@ async function guestToken(): Promise<string> {
   if (!response.ok) throw new Error(`guest token request failed (${response.status})`);
   const body = (await response.json()) as StoredGuest & { guestId: string };
   writeLocal(GUEST_KEY, JSON.stringify({ token: body.token, expiresAt: body.expiresAt }));
+  analytics.track({ name: 'guest_session_started', provider: 'server-guest' });
   return body.token;
 }
 
@@ -74,6 +76,7 @@ const activeRooms = new Map<string, Room>();
 export async function quickMatch(options: JoinOptions): Promise<Room> {
   await authenticate();
   const room = await getClient().joinOrCreate(LUDO_ROOM_NAME, { ...options, mode: 'quick' });
+  analytics.track({ name: 'room_joined', via: 'quick-match' });
   activeRooms.set(room.roomId, room);
   rememberRoom(room);
   return room;
@@ -82,6 +85,7 @@ export async function quickMatch(options: JoinOptions): Promise<Room> {
 export async function createPrivateRoom(options: JoinOptions): Promise<Room> {
   await authenticate();
   const room = await getClient().create(LUDO_ROOM_NAME, { ...options, mode: 'private' });
+  analytics.track({ name: 'room_created', playerCount: options.playerCount ?? 4, private: true });
   activeRooms.set(room.roomId, room);
   rememberRoom(room);
   return room;
@@ -108,6 +112,7 @@ export async function connectToRoom(code: string, displayName: string): Promise<
     }
   }
   const room = await getClient().joinById(code, { displayName });
+  analytics.track({ name: 'room_joined', via: 'code' });
   activeRooms.set(code, room);
   rememberRoom(room);
   return room;
