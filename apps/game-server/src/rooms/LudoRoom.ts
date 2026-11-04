@@ -250,6 +250,14 @@ export class LudoRoom extends Room<{ state: LudoState; client: LudoClient }> {
     this.reassignHost();
   }
 
+  /** Room-level exception hook: report, never crash the process. */
+  override onUncaughtException(error: Error, methodName: string) {
+    logger.error(
+      { code: this.state.code, methodName, error: error.stack ?? String(error) },
+      'room error',
+    );
+  }
+
   override onDispose() {
     this.turnTimer?.clear();
     this.startTimer?.clear();

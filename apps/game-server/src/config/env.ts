@@ -10,6 +10,11 @@ const envSchema = z.object({
   RECONNECT_GRACE_SECONDS: z.coerce.number().int().min(5).max(600).default(45),
   /** Seconds a player has to roll or move before the server acts for them. */
   TURN_SECONDS: z.coerce.number().int().min(1).max(120).default(20),
+  /**
+   * Express "trust proxy" setting: number of reverse-proxy hops in front of the
+   * server (0 = none). Needed so per-IP rate limits see the real client IP.
+   */
+  TRUST_PROXY: z.coerce.number().int().min(0).max(5).default(0),
   /** Extra turn time so clients can finish animating the previous action. */
   ANIMATION_ALLOWANCE_MS: z.coerce.number().int().min(0).max(15_000).default(4_000),
 });

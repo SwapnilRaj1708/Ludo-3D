@@ -1,6 +1,6 @@
 import type express from 'express';
 import { matchMaker } from '@colyseus/core';
-import { allowedOrigins, guestSecret } from '../config/env.js';
+import { allowedOrigins, env, guestSecret } from '../config/env.js';
 import { issueGuestToken } from '../authentication/guestTokens.js';
 import { KeyedRateLimiter } from '../validation/rateLimiter.js';
 import { matchStore } from '../services/matchStore.js';
@@ -9,6 +9,9 @@ const guestLimiter = new KeyedRateLimiter(10, 10 / 3600); // 10 burst, 10 per ho
 
 export function configureHttp(app: express.Application) {
   app.disable('x-powered-by');
+  // Behind a load balancer, trust exactly the configured number of hops so
+  // rate limits key on the real client address (and cannot be spoofed).
+  if (env().TRUST_PROXY > 0) app.set('trust proxy', env().TRUST_PROXY);
 
   // CORS for our own JSON API (Colyseus handles its matchmaking routes).
   app.use('/api', (req, res, next) => {
