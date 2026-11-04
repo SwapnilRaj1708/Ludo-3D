@@ -1,7 +1,9 @@
 /**
  * Asset pipeline: builds the code-defined development proxies and writes them
- * as optimised GLB files to public/assets/animals/<species>.glb, so the game
- * exercises the same GLB loading path final production models will use.
+ * as optimised GLB files to each animal's manifest path (public/assets/animals/
+ * <species>.glb), so the game exercises the same GLB loading path final
+ * production models will use. Species whose manifest status is 'final' are
+ * skipped, so a delivered model is never overwritten.
  *
  *   pnpm --filter @ludo3d/web assets:proxies
  *
@@ -19,6 +21,7 @@ import { MeshoptDecoder, MeshoptEncoder } from 'meshoptimizer';
 import * as THREE from 'three';
 import { GLTFExporter } from 'three/examples/jsm/exporters/GLTFExporter.js';
 import { SPECIES } from '@ludo3d/shared';
+import { ANIMAL_ASSETS } from '../src/game/assets/manifest';
 import { PROXY_BUILDERS } from '../src/game/characters/proxies';
 
 // GLTFExporter packs binary GLBs through FileReader, which Node lacks.
@@ -40,9 +43,7 @@ class NodeFileReader {
 }
 (globalThis as unknown as { FileReader: unknown }).FileReader ??= NodeFileReader;
 
-const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
-const outDir = resolve(root, 'public/assets/animals');
-mkdirSync(outDir, { recursive: true });
+const publicDir = resolve(dirname(fileURLToPath(import.meta.url)), '..', 'public');
 
 await MeshoptEncoder.ready;
 await MeshoptDecoder.ready;
@@ -51,6 +52,12 @@ const io = new NodeIO()
   .registerDependencies({ 'meshopt.encoder': MeshoptEncoder, 'meshopt.decoder': MeshoptDecoder });
 
 for (const species of SPECIES) {
+  const entry = ANIMAL_ASSETS[species];
+  // Never overwrite delivered art: only species still marked as proxies are exported.
+  if (entry.status !== 'proxy') {
+    console.log(`${species.padEnd(8)} skipped (manifest status: ${entry.status})`);
+    continue;
+  }
   const build = PROXY_BUILDERS[species]();
   const scene = new THREE.Scene();
   scene.add(build.rig.root);
@@ -71,7 +78,8 @@ for (const species of SPECIES) {
   );
   document.createExtension(EXTMeshoptCompression).setRequired(true);
   const glb = await io.writeBinary(document);
-  const file = resolve(outDir, `${species}.glb`);
+  const file = resolve(publicDir, `.${entry.path}`);
+  mkdirSync(dirname(file), { recursive: true });
   writeFileSync(file, glb);
   console.log(
     `${species.padEnd(8)} raw ${(exported.byteLength / 1024).toFixed(0)} KB → optimised ${(glb.byteLength / 1024).toFixed(0)} KB, ${build.clips.length} clips`,

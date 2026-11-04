@@ -4,14 +4,21 @@ import { describe, expect, it } from 'vitest';
 import * as THREE from 'three';
 import { GLTFLoader, type GLTF } from 'three/examples/jsm/loaders/GLTFLoader.js';
 import { MeshoptDecoder } from 'three/examples/jsm/libs/meshopt_decoder.module.js';
-import { SPECIES } from '@ludo3d/shared';
+import { SPECIES, type Species } from '@ludo3d/shared';
 import { ANIMAL_ASSETS } from '../src/game/assets/manifest';
 import { ANIM_STATES } from '../src/game/characters/animStates';
 
+const fileOf = (species: Species) => resolve(__dirname, `../public${ANIMAL_ASSETS[species].path}`);
+
+/**
+ * Download budget per animal: the exported proxies are tiny; final models
+ * (≤ 25k triangles, ≤ 2048² KTX2 textures per the asset spec) get more room.
+ */
+const SIZE_BUDGET = { proxy: 400 * 1024, final: 6 * 1024 * 1024 } as const;
+
 /** Loads a GLB exactly as the game does (GLTFLoader + Meshopt decoder). */
-function load(species: string): Promise<GLTF> {
-  const file = resolve(__dirname, `../public/assets/animals/${species}.glb`);
-  const bytes = readFileSync(file);
+function load(species: Species): Promise<GLTF> {
+  const bytes = readFileSync(fileOf(species));
   const buffer = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);
   const loader = new GLTFLoader().setMeshoptDecoder(MeshoptDecoder);
   return new Promise((ok, fail) => loader.parse(buffer, '', ok, fail));
@@ -19,8 +26,8 @@ function load(species: string): Promise<GLTF> {
 
 describe.each(SPECIES)('%s.glb', (species) => {
   it('is a compact, rigged, animated character with every required clip', async () => {
-    const size = statSync(resolve(__dirname, `../public/assets/animals/${species}.glb`)).size;
-    expect(size).toBeLessThan(400 * 1024);
+    const entry = ANIMAL_ASSETS[species];
+    expect(statSync(fileOf(species)).size).toBeLessThan(SIZE_BUDGET[entry.status]);
 
     const gltf = await load(species);
     const skinned: THREE.SkinnedMesh[] = [];
@@ -31,7 +38,6 @@ describe.each(SPECIES)('%s.glb', (species) => {
     expect(skinned[0]!.skeleton.bones.length).toBeGreaterThan(15);
 
     const names = new Set(gltf.animations.map((c) => c.name));
-    const entry = ANIMAL_ASSETS[species];
     for (const state of ANIM_STATES) expect(names, state).toContain(entry.clips[state]);
     for (const extra of entry.extraClips) expect(names, extra).toContain(extra);
 
@@ -44,7 +50,9 @@ describe.each(SPECIES)('%s.glb', (species) => {
       }
     }
 
-    // PBR extensions survive the round trip (fur sheen / plumage iridescence).
+    // Exported proxies: PBR extensions survive the round trip (fur sheen /
+    // plumage iridescence). Final art is reviewed by eye instead.
+    if (entry.status !== 'proxy') return;
     const materials = new Set<THREE.Material>();
     for (const mesh of skinned) materials.add(mesh.material as THREE.Material);
     const physical = [...materials].filter(
