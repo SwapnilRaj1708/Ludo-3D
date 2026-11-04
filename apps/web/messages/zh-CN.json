@@ -221,7 +221,14 @@
     "roomFull": "该房间已满或对局已开始。",
     "joinFailed": "无法加入房间。",
     "timeLeft": "{seconds} 秒",
-    "latency": "{ms} 毫秒"
+    "latency": "{ms} 毫秒",
+    "startingIn": "{seconds} 秒后开始…",
+    "waitingRematch": "等待房主开始新的一局…",
+    "onlyHostRematch": "只有房主可以开始新的一局。",
+    "connectionStatus": "连接",
+    "yourTurnTimer": "剩余时间：{seconds} 秒",
+    "enterName": "输入名字以加入",
+    "seatColor": "{color} · {animal}"
   },
   "profile": {
     "title": "个人资料",

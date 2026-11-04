@@ -8,6 +8,7 @@ export async function waitForGameReady(page: Page) {
 
 export interface GameStateLike {
   status: string;
+  seats: number[];
   version: number;
   turn: { seat: number; phase: string };
   pieces: { id: string; progress: number }[];

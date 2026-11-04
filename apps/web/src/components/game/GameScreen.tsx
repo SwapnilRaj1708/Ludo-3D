@@ -302,6 +302,7 @@ export function GameScreen({
     (window as unknown as Record<string, unknown>).__LUDO__ = {
       events: [] as unknown[],
       getState: () => snapshotRef.current.state,
+      localSeats: () => snapshotRef.current.seats.filter((x) => x.isLocal).map((x) => x.seat),
       isBusy: () => controller.isBusy(),
       selectable: () => [...selectableRef.current],
     };

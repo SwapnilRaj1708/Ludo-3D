@@ -11,10 +11,11 @@
     "lint": "tsc -p tsconfig.json --noEmit",
     "test": "vitest run",
     "test:e2e": "playwright test",
-    "build:e2e": "NEXT_PUBLIC_E2E=1 NEXT_DIST_DIR=.next-e2e next build",
+    "build:e2e": "NEXT_PUBLIC_E2E=1 NEXT_PUBLIC_GAME_SERVER_URL=http://localhost:2567 NEXT_DIST_DIR=.next-e2e next build",
     "start:e2e": "NEXT_DIST_DIR=.next-e2e next start --port 3100"
   },
   "dependencies": {
+    "@colyseus/sdk": "0.18.9",
     "@fontsource-variable/cinzel": "^5.3.0",
     "@fontsource-variable/inter": "^5.3.0",
     "@fontsource-variable/noto-sans-devanagari": "^5.3.0",
@@ -24,6 +25,7 @@
     "@react-three/fiber": "9.8.2",
     "@react-three/postprocessing": "^3.2.2",
     "@tanstack/react-query": "5.105.3",
+    "firebase": "13.2.0",
     "next": "16.4.5",
     "next-intl": "4.14.9",
     "postprocessing": "^6.39.6",

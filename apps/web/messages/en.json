@@ -221,7 +221,14 @@
     "roomFull": "That room is full or the match has already started.",
     "joinFailed": "Could not join the room.",
     "timeLeft": "{seconds}s",
-    "latency": "{ms} ms"
+    "latency": "{ms} ms",
+    "startingIn": "Starting in {seconds}…",
+    "waitingRematch": "Waiting for the host to start a new match…",
+    "onlyHostRematch": "Only the host can start a new match.",
+    "connectionStatus": "Connection",
+    "yourTurnTimer": "Time left: {seconds}s",
+    "enterName": "Choose a name to join",
+    "seatColor": "{color} · {animal}"
   },
   "profile": {
     "title": "Profile",

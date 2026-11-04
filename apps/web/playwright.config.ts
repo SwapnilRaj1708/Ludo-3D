@@ -42,11 +42,26 @@ export default defineConfig({
     },
     { name: 'mobile', use: { ...devices['Pixel 7'] }, grep: /@mobile/ },
   ],
-  webServer: {
-    command: DEV ? 'pnpm dev' : 'pnpm build:e2e && pnpm start:e2e',
-    url: `http://localhost:${PORT}`,
-    reuseExistingServer: true,
-    timeout: 420_000,
-    env: { NEXT_PUBLIC_E2E: '1' },
-  },
+  webServer: [
+    {
+      // Authoritative game server for the online tests (generous turn timer).
+      command: 'pnpm --filter @ludo3d/game-server exec tsx src/index.ts',
+      url: 'http://localhost:2567/api/health',
+      reuseExistingServer: true,
+      timeout: 120_000,
+      env: {
+        PORT: '2567',
+        CORS_ORIGINS: 'http://localhost:3100,http://localhost:3000',
+        TURN_SECONDS: '60',
+        NODE_ENV: 'development',
+      },
+    },
+    {
+      command: DEV ? 'pnpm dev' : 'pnpm build:e2e && pnpm start:e2e',
+      url: `http://localhost:${PORT}`,
+      reuseExistingServer: true,
+      timeout: 420_000,
+      env: { NEXT_PUBLIC_E2E: '1', NEXT_PUBLIC_GAME_SERVER_URL: 'http://localhost:2567' },
+    },
+  ],
 });

@@ -44,3 +44,20 @@ export function writeSession(key: string, value: string | null): void {
     /* ignore */
   }
 }
+
+export function readLocal(key: string): string | null {
+  try {
+    return globalThis.localStorage?.getItem(key) ?? null;
+  } catch {
+    return null;
+  }
+}
+
+export function writeLocal(key: string, value: string | null): void {
+  try {
+    if (value === null) globalThis.localStorage?.removeItem(key);
+    else globalThis.localStorage?.setItem(key, value);
+  } catch {
+    /* ignore */
+  }
+}

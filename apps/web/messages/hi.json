@@ -221,7 +221,14 @@
     "roomFull": "यह रूम भर चुका है या मैच शुरू हो गया है।",
     "joinFailed": "रूम में नहीं जुड़ पाए।",
     "timeLeft": "{seconds} से.",
-    "latency": "{ms} ms"
+    "latency": "{ms} ms",
+    "startingIn": "{seconds} में शुरू…",
+    "waitingRematch": "होस्ट के नया मैच शुरू करने का इंतज़ार…",
+    "onlyHostRematch": "सिर्फ़ होस्ट नया मैच शुरू कर सकता है।",
+    "connectionStatus": "कनेक्शन",
+    "yourTurnTimer": "बचा समय: {seconds} से.",
+    "enterName": "जुड़ने के लिए नाम चुनें",
+    "seatColor": "{color} · {animal}"
   },
   "profile": {
     "title": "प्रोफ़ाइल",
